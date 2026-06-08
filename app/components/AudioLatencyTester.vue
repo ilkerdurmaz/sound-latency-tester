@@ -1,40 +1,56 @@
 <template>
     <div class="space-y-6 max-w-2xl">
-        <UBadge
-            color="neutral"
-            variant="outline"
-            icon="i-lucide-info"
-            :ui="{ base: 'w-full flex-col items-start gap-2 p-4' }"
-            role="note"
-            aria-label="How to use this tool">
-            <div class="w-full space-y-2 text-left">
-                <h3 class="text-sm font-semibold">How to use</h3>
-                <ol class="list-decimal space-y-2 pl-4 text-sm">
-                    <li>Select your microphone and audio output device (headphones or speakers).</li>
-                    <li>Place the output device close enough for the microphone to pick up the sound clearly.</li>
-                    <li>
-                        Click
-                        <span class="font-medium">Preview</span>
-                        to monitor the live microphone level.
-                    </li>
-                    <li>
-                        Adjust the detection threshold: drag the red thumb so the level bar stays below it during silence, but crosses it when a click
-                        sound is played.
-                    </li>
-                    <li>
-                        Click
-                        <span class="font-medium">Start</span>
-                        . The tool plays random click sounds through the output device and records when the microphone detects each one.
-                    </li>
-                    <li>Latency is calculated as the time difference between playback and detection, in milliseconds.</li>
-                    <li>
-                        Click
-                        <span class="font-medium">Stop</span>
-                        when you are done. Review individual measurements and the average latency in the results section.
-                    </li>
-                </ol>
-            </div>
-        </UBadge>
+        <UCollapsible
+            v-model:open="showHowToUse"
+            :unmount-on-hide="false"
+            class="w-full rounded-md border border-gray-200 overflow-hidden dark:border-gray-600">
+            <button
+                type="button"
+                class="flex w-full cursor-pointer items-center gap-2 rounded-md bg-gray-50 p-4 text-left dark:bg-slate-800/50"
+                :aria-expanded="showHowToUse"
+                aria-controls="how-to-use-content"
+                aria-label="Toggle how to use instructions">
+                <UIcon name="i-lucide-info" class="size-4 shrink-0 text-gray-500 dark:text-slate-400" aria-hidden="true" />
+                <h3 class="flex-1 text-sm font-semibold text-gray-900 dark:text-slate-200">How to use</h3>
+                <UIcon
+                    name="i-lucide-chevron-down"
+                    class="size-4 shrink-0 text-gray-500 transition-transform duration-200 dark:text-slate-400"
+                    :class="{ 'rotate-180': showHowToUse }"
+                    aria-hidden="true" />
+            </button>
+
+            <template #content>
+                <div
+                    id="how-to-use-content"
+                    class="border-t-0 border-gray-200 bg-gray-50 px-4 pb-4 dark:border-gray-600 dark:bg-slate-800/50"
+                    role="note">
+                    <ol class="list-decimal space-y-2 pl-4 text-sm text-gray-700 dark:text-slate-300">
+                        <li>Select your microphone and audio output device (headphones or speakers).</li>
+                        <li>Place the output device close enough for the microphone to pick up the sound clearly.</li>
+                        <li>
+                            Click
+                            <span class="font-medium">Preview</span>
+                            to monitor the live microphone level.
+                        </li>
+                        <li>
+                            Adjust the detection threshold: drag the red thumb so the level bar stays below it during silence, but crosses it when a
+                            click sound is played.
+                        </li>
+                        <li>
+                            Click
+                            <span class="font-medium">Start</span>
+                            . The tool plays random click sounds through the output device and records when the microphone detects each one.
+                        </li>
+                        <li>Latency is calculated as the time difference between playback and detection, in milliseconds.</li>
+                        <li>
+                            Click
+                            <span class="font-medium">Stop</span>
+                            when you are done. Review individual measurements and the average latency in the results section.
+                        </li>
+                    </ol>
+                </div>
+            </template>
+        </UCollapsible>
 
         <div
             v-if="!supportsSetSinkId"
@@ -76,6 +92,76 @@
                     :loading="isRequestingPermission"
                     aria-label="Allow microphone access"
                     @click="handleRequestMicrophoneAccess" />
+            </div>
+        </div>
+
+        <div v-if="measurements.length > 0" class="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-600 dark:bg-slate-800">
+            <div class="mb-4 flex items-center justify-between gap-2">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-200">Measurement Results</h3>
+                <div class="flex items-center gap-1">
+                    <UButton
+                        label="Reset"
+                        color="neutral"
+                        variant="ghost"
+                        size="xs"
+                        :disabled="isActive"
+                        aria-label="Reset measurements"
+                        @click="handleResetMeasurements" />
+                    <UButton
+                        :label="showAdvanced ? 'Simple' : 'Advanced'"
+                        color="neutral"
+                        variant="ghost"
+                        size="xs"
+                        :aria-label="showAdvanced ? 'Switch to simple view' : 'Switch to advanced view'"
+                        @click="showAdvanced = !showAdvanced" />
+                </div>
+            </div>
+
+            <div v-if="!showAdvanced">
+                <div v-if="latestMeasurement" class="flex flex-col items-center gap-1 py-4">
+                    <span
+                        class="text-4xl font-bold tabular-nums"
+                        :class="latestMeasurement.latency === null ? 'text-amber-500 dark:text-amber-400' : 'text-gray-900 dark:text-slate-100'">
+                        {{ latestMeasurement.latency === null ? '—' : `${latestMeasurement.latency.toFixed(1)}` }}
+                    </span>
+                    <span v-if="latestMeasurement.latency !== null" class="text-sm font-medium text-gray-500 dark:text-slate-400">ms</span>
+                    <span v-else class="text-sm text-amber-500 dark:text-amber-400">Missed</span>
+                    <span class="mt-1 text-xs text-gray-400 dark:text-slate-500">measurement #{{ latestMeasurement.id }}</span>
+                </div>
+
+                <div v-if="averageLatency !== null" class="mt-2 border-t border-gray-200 pt-3 text-center dark:border-gray-600">
+                    <p class="text-sm text-gray-500 dark:text-slate-400">
+                        Average
+                        <span class="ml-1 font-semibold text-gray-900 dark:text-slate-200">{{ averageLatency.toFixed(1) }} ms</span>
+                        <span class="ml-1 text-gray-400 dark:text-slate-500">({{ validMeasurementCount }}/{{ measurements.length }})</span>
+                    </p>
+                </div>
+            </div>
+
+            <div v-else>
+                <ul class="space-y-1" role="list" aria-label="Latency measurement list">
+                    <li
+                        v-for="measurement in recentMeasurements"
+                        :key="measurement.id"
+                        class="flex items-center justify-between rounded-md px-2 py-1 text-sm odd:bg-gray-50 dark:odd:bg-slate-900">
+                        <span class="text-gray-500 dark:text-slate-400">#{{ measurement.id }}</span>
+                        <span
+                            :class="
+                                measurement.latency === null ? 'text-amber-600 dark:text-amber-400' : 'font-medium text-gray-900 dark:text-slate-200'
+                            ">
+                            {{ formatMeasurement(measurement) }}
+                        </span>
+                    </li>
+                </ul>
+
+                <div v-if="averageLatency !== null" class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-600">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-slate-200">
+                        Average: {{ averageLatency.toFixed(1) }} ms
+                        <span class="font-normal text-gray-500 dark:text-slate-400">
+                            ({{ validMeasurementCount }} / {{ measurements.length }} measurements)
+                        </span>
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -215,76 +301,6 @@
                 {{ currentActionLabel }}
             </p>
         </div>
-
-        <div v-if="measurements.length > 0" class="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-600 dark:bg-slate-800">
-            <div class="mb-4 flex items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-200">Measurement Results</h3>
-                <div class="flex items-center gap-1">
-                    <UButton
-                        label="Reset"
-                        color="neutral"
-                        variant="ghost"
-                        size="xs"
-                        :disabled="isActive"
-                        aria-label="Reset measurements"
-                        @click="handleResetMeasurements" />
-                    <UButton
-                        :label="showAdvanced ? 'Simple' : 'Advanced'"
-                        color="neutral"
-                        variant="ghost"
-                        size="xs"
-                        :aria-label="showAdvanced ? 'Switch to simple view' : 'Switch to advanced view'"
-                        @click="showAdvanced = !showAdvanced" />
-                </div>
-            </div>
-
-            <div v-if="!showAdvanced">
-                <div v-if="latestMeasurement" class="flex flex-col items-center gap-1 py-4">
-                    <span
-                        class="text-4xl font-bold tabular-nums"
-                        :class="latestMeasurement.latency === null ? 'text-amber-500 dark:text-amber-400' : 'text-gray-900 dark:text-slate-100'">
-                        {{ latestMeasurement.latency === null ? '—' : `${latestMeasurement.latency.toFixed(1)}` }}
-                    </span>
-                    <span v-if="latestMeasurement.latency !== null" class="text-sm font-medium text-gray-500 dark:text-slate-400">ms</span>
-                    <span v-else class="text-sm text-amber-500 dark:text-amber-400">Missed</span>
-                    <span class="mt-1 text-xs text-gray-400 dark:text-slate-500">measurement #{{ latestMeasurement.id }}</span>
-                </div>
-
-                <div v-if="averageLatency !== null" class="mt-2 border-t border-gray-200 pt-3 text-center dark:border-gray-600">
-                    <p class="text-sm text-gray-500 dark:text-slate-400">
-                        Average
-                        <span class="ml-1 font-semibold text-gray-900 dark:text-slate-200">{{ averageLatency.toFixed(1) }} ms</span>
-                        <span class="ml-1 text-gray-400 dark:text-slate-500">({{ validMeasurementCount }}/{{ measurements.length }})</span>
-                    </p>
-                </div>
-            </div>
-
-            <div v-else>
-                <ul class="space-y-1" role="list" aria-label="Latency measurement list">
-                    <li
-                        v-for="measurement in recentMeasurements"
-                        :key="measurement.id"
-                        class="flex items-center justify-between rounded-md px-2 py-1 text-sm odd:bg-gray-50 dark:odd:bg-slate-900">
-                        <span class="text-gray-500 dark:text-slate-400">#{{ measurement.id }}</span>
-                        <span
-                            :class="
-                                measurement.latency === null ? 'text-amber-600 dark:text-amber-400' : 'font-medium text-gray-900 dark:text-slate-200'
-                            ">
-                            {{ formatMeasurement(measurement) }}
-                        </span>
-                    </li>
-                </ul>
-
-                <div v-if="averageLatency !== null" class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-600">
-                    <p class="text-sm font-semibold text-gray-900 dark:text-slate-200">
-                        Average: {{ averageLatency.toFixed(1) }} ms
-                        <span class="font-normal text-gray-500 dark:text-slate-400">
-                            ({{ validMeasurementCount }} / {{ measurements.length }} measurements)
-                        </span>
-                    </p>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -350,6 +366,7 @@ const currentActionLabel = computed(() => {
 });
 
 const showAdvanced = ref(false);
+const showHowToUse = ref(true);
 
 const latestMeasurement = computed(() => measurements.value.at(-1) ?? null);
 
@@ -844,6 +861,12 @@ const handleStop = async () => {
     status.value = 'idle';
 };
 
+watch(isActive, (active) => {
+    if (active) {
+        showHowToUse.value = false;
+    }
+});
+
 watch(selectedInput, async () => {
     if (!isPreviewing.value || isActive.value) {
         return;
@@ -854,8 +877,7 @@ watch(selectedInput, async () => {
 });
 
 onMounted(async () => {
-    supportsSetSinkId.value =
-        typeof AudioContext !== 'undefined' && typeof AudioContext.prototype.setSinkId === 'function';
+    supportsSetSinkId.value = typeof AudioContext !== 'undefined' && typeof AudioContext.prototype.setSinkId === 'function';
 
     await handleRefreshDevices();
 
