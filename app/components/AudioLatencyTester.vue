@@ -10,7 +10,6 @@
             <div class="w-full space-y-2 text-left">
                 <h3 class="text-sm font-semibold">How to use</h3>
                 <ol class="list-decimal space-y-2 pl-4 text-sm">
-                    <li>When prompted, allow microphone access — this site needs permission to read audio from your microphone.</li>
                     <li>Select your microphone and audio output device (headphones or speakers).</li>
                     <li>Place the output device close enough for the microphone to pick up the sound clearly.</li>
                     <li>
@@ -54,7 +53,36 @@
             <p class="text-sm">{{ errorMessage }}</p>
         </div>
 
-        <div class="space-y-4 rounded-md border border-gray-200 bg-white p-4 dark:border-gray-600 dark:bg-slate-800">
+        <div
+            v-if="!hasMicrophoneAccess"
+            class="rounded-md border border-blue-300 bg-blue-50 p-4 text-blue-950 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-100"
+            role="region"
+            aria-label="Microphone permission required">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="space-y-1">
+                    <h3 class="text-sm font-semibold">Microphone access required</h3>
+                    <p class="text-sm">
+                        This tool reads audio from your microphone to measure playback latency. Allow access to list your devices and start testing.
+                    </p>
+                    <p v-if="permissionDenied" class="text-sm text-red-700 dark:text-red-300">
+                        Permission was denied. Check your browser's site settings and try again.
+                    </p>
+                </div>
+                <UButton
+                    label="Allow Microphone Access"
+                    icon="i-lucide-mic"
+                    color="primary"
+                    class="shrink-0"
+                    :loading="isRequestingPermission"
+                    aria-label="Allow microphone access"
+                    @click="handleRequestMicrophoneAccess" />
+            </div>
+        </div>
+
+        <div
+            class="space-y-4 rounded-md border border-gray-200 bg-white p-4 dark:border-gray-600 dark:bg-slate-800"
+            :class="{ 'pointer-events-none opacity-50': !hasMicrophoneAccess }"
+            :aria-hidden="!hasMicrophoneAccess">
             <div class="space-y-2">
                 <label for="latency-input-device" class="block text-sm font-medium text-gray-700 dark:text-slate-300">
                     Audio Input Device (Microphone)
@@ -64,6 +92,7 @@
                     v-model="selectedInput"
                     value-key="value"
                     :items="inputOptions"
+                    placeholder="Select a microphone"
                     color="neutral"
                     class="w-full"
                     :disabled="isActive"
@@ -79,6 +108,7 @@
                     v-model="selectedOutput"
                     value-key="value"
                     :items="outputOptions"
+                    placeholder="Select an output device"
                     color="neutral"
                     class="w-full"
                     :disabled="isActive || !supportsSetSinkId"
@@ -107,9 +137,9 @@
                             v-if="!isMonitoring && !isActive"
                             label="Preview"
                             color="neutral"
-                            variant="soft"
+                            variant="outline"
                             size="xs"
-                            :disabled="!selectedInput"
+                            :disabled="isActive"
                             aria-label="Start microphone preview"
                             @click="handleStartPreview" />
                         <UButton
@@ -162,13 +192,13 @@
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-4">
+        <div class="flex flex-wrap items-center gap-4" :class="{ 'pointer-events-none opacity-50': !hasMicrophoneAccess }">
             <UButton
                 v-if="!isActive"
                 label="Start"
                 color="primary"
                 :loading="status === 'requesting'"
-                :disabled="status === 'requesting' || inputOptions.length === 0"
+                :disabled="status === 'requesting' || !hasMicrophoneAccess"
                 aria-label="Start latency measurement"
                 @click="handleStart" />
             <UButton v-else label="Stop" color="neutral" variant="outline" aria-label="Stop latency measurement" @click="handleStop" />
@@ -179,7 +209,7 @@
                 variant="ghost"
                 :disabled="isActive"
                 aria-label="Refresh audio devices"
-                @click="handleRefreshDevices" />
+                @click="handleRefreshDevices(true)" />
 
             <p v-if="currentActionLabel" class="text-sm text-gray-600 dark:text-slate-400" role="status" aria-live="polite">
                 {{ currentActionLabel }}
@@ -270,12 +300,15 @@ const MIC_GAIN = 4;
 const status = ref('idle');
 const currentAction = ref('idle');
 const threshold = ref(25);
-const selectedInput = ref('');
-const selectedOutput = ref('');
+const selectedInput = ref(undefined);
+const selectedOutput = ref(undefined);
 const measurements = ref([]);
 const errorMessage = ref('');
 const currentMicLevel = ref(0);
 const isPreviewing = ref(false);
+const hasMicrophoneAccess = ref(false);
+const isRequestingPermission = ref(false);
+const permissionDenied = ref(false);
 
 const inputOptions = ref([]);
 const outputOptions = ref([]);
@@ -353,7 +386,7 @@ const getDeviceLabel = (device, fallback) => {
 
 const mapDeviceOptions = (devices, kind, fallback) => {
     return devices
-        .filter((device) => device.kind === kind)
+        .filter((device) => device.kind === kind && device.deviceId !== '')
         .map((device) => ({
             label: getDeviceLabel(device, fallback),
             value: device.deviceId,
@@ -363,24 +396,43 @@ const mapDeviceOptions = (devices, kind, fallback) => {
 const setDefaultSelections = (inputs, outputs) => {
     if (!selectedInput.value || !inputs.some((option) => option.value === selectedInput.value)) {
         const defaultInput = inputs.find((option) => option.value === 'default') ?? inputs[0];
-        selectedInput.value = defaultInput?.value ?? '';
+        selectedInput.value = defaultInput?.value;
     }
 
     if (!selectedOutput.value || !outputs.some((option) => option.value === selectedOutput.value)) {
         const defaultOutput = outputs.find((option) => option.value === 'default') ?? outputs[0];
-        selectedOutput.value = defaultOutput?.value ?? '';
+        selectedOutput.value = defaultOutput?.value;
     }
 };
 
-const handleRefreshDevices = async () => {
-    errorMessage.value = '';
+const handleRefreshDevices = async (requestPermission = false) => {
+    if (requestPermission) {
+        errorMessage.value = '';
+        permissionDenied.value = false;
+    }
 
     if (!navigator.mediaDevices?.enumerateDevices) {
         errorMessage.value = 'Your browser does not support listing audio devices.';
-        return;
+        hasMicrophoneAccess.value = false;
+        return false;
     }
 
     try {
+        if (requestPermission && navigator.mediaDevices.getUserMedia) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach((track) => track.stop());
+            } catch (permissionError) {
+                hasMicrophoneAccess.value = false;
+
+                if (permissionError instanceof DOMException && permissionError.name === 'NotAllowedError') {
+                    permissionDenied.value = true;
+                    errorMessage.value = 'Microphone permission denied. Please allow access in your browser settings.';
+                    return false;
+                }
+            }
+        }
+
         const devices = await navigator.mediaDevices.enumerateDevices();
         const inputs = mapDeviceOptions(devices, 'audioinput', 'Microphone');
         const outputs = mapDeviceOptions(devices, 'audiooutput', 'Speaker');
@@ -388,14 +440,32 @@ const handleRefreshDevices = async () => {
         inputOptions.value = inputs;
         outputOptions.value = outputs;
         setDefaultSelections(inputs, outputs);
+        hasMicrophoneAccess.value = inputs.length > 0;
 
-        if (inputs.length === 0) {
+        if (inputs.length === 0 && requestPermission) {
             errorMessage.value = 'No audio input device found.';
+            return false;
         }
+
+        return hasMicrophoneAccess.value;
     } catch {
         errorMessage.value = 'An error occurred while listing audio devices.';
+        hasMicrophoneAccess.value = false;
+        return false;
     }
 };
+
+const handleRequestMicrophoneAccess = async () => {
+    isRequestingPermission.value = true;
+
+    try {
+        await handleRefreshDevices(true);
+    } finally {
+        isRequestingPermission.value = false;
+    }
+};
+
+const handleDeviceChange = () => handleRefreshDevices(false);
 
 const clearPendingTimeout = () => {
     if (pendingTimeoutId !== null) {
@@ -603,18 +673,16 @@ const connectMicToAnalyser = (context, stream, analyser) => {
 };
 
 const setupPreviewAudio = async () => {
-    if (!selectedInput.value) {
-        throw new Error('Please select a microphone.');
-    }
-
     previewMicStream = await navigator.mediaDevices.getUserMedia({
         audio: {
-            deviceId: { exact: selectedInput.value },
+            deviceId: selectedInput.value ? { exact: selectedInput.value } : undefined,
             echoCancellation: false,
             noiseSuppression: false,
             autoGainControl: false,
         },
     });
+
+    await handleRefreshDevices();
 
     previewAudioContext = new AudioContext();
     previewAnalyserNode = previewAudioContext.createAnalyser();
@@ -673,26 +741,24 @@ const handleStopPreview = async () => {
 };
 
 const handleThresholdInteraction = () => {
-    if (!isActive.value && !isPreviewing.value && selectedInput.value) {
+    if (!isActive.value && !isPreviewing.value) {
         handleStartPreview();
     }
 };
 
 const setupAudio = async () => {
-    if (!selectedInput.value) {
-        throw new Error('Please select a microphone.');
-    }
-
     await handleStopPreview();
 
     micStream = await navigator.mediaDevices.getUserMedia({
         audio: {
-            deviceId: { exact: selectedInput.value },
+            deviceId: selectedInput.value ? { exact: selectedInput.value } : undefined,
             echoCancellation: false,
             noiseSuppression: false,
             autoGainControl: false,
         },
     });
+
+    await handleRefreshDevices();
 
     audioContext = new AudioContext();
     analyserNode = audioContext.createAnalyser();
@@ -793,11 +859,11 @@ onMounted(async () => {
 
     await handleRefreshDevices();
 
-    navigator.mediaDevices?.addEventListener('devicechange', handleRefreshDevices);
+    navigator.mediaDevices?.addEventListener('devicechange', handleDeviceChange);
 });
 
 onUnmounted(async () => {
-    navigator.mediaDevices?.removeEventListener('devicechange', handleRefreshDevices);
+    navigator.mediaDevices?.removeEventListener('devicechange', handleDeviceChange);
     await handleStop();
     await handleStopPreview();
 });
