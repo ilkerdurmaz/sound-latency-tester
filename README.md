@@ -1,64 +1,49 @@
-# Nuxt Starter Template
+# Sound Latency Tester
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+A simple Nuxt application for measuring microphone and audio output latency in the browser.
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+The app plays short test sounds, detects the returned audio through the microphone, and calculates latency results from repeated measurements. It can be used to compare headphones, speakers, microphones, or different audio output settings.
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+## Features
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
+- Microphone and audio output device selection
+- Detection threshold control
+- Live microphone level meter
+- Individual latency measurements and average result
+- Reset measurements and refresh device list
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+## How It Works
 
-## Quick Start
-
-```bash [Terminal]
-npm create nuxt@latest -- -t ui
-```
-
-## Deploy your own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+The app asks for microphone access, plays a short test sound through the selected output device, and listens for that sound through the selected microphone. The time between playing the sound and detecting it from the microphone is recorded as the latency. Repeating the test gives a list of measurements and an average result.
 
 ## Setup
 
-Make sure to install the dependencies:
+Install dependencies:
 
 ```bash
-pnpm install
+npm install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+Start the development server:
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
-## Production
+The app runs at `http://localhost:3000` by default.
 
-Build the application for production:
+## Scripts
 
 ```bash
-pnpm build
+npm run dev
+npm run build
+npm run preview
+npm run lint
+npm run typecheck
 ```
 
-Locally preview production build:
+## Notes
 
-```bash
-pnpm preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-
-## Renovate integration
-
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+- The browser must be allowed to access the microphone.
+- For best results, use an environment where the microphone can clearly hear the test sound.
+- Audio output device selection may not be supported in every browser.
