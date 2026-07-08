@@ -1,0 +1,127 @@
+{
+  "app": {
+    "title": "Ses Gecikmesi Test Aracı",
+    "description": "Ses çıkış cihazlarınızın gecikmesini test edin",
+    "builtBy": "İlker Durmaz tarafından geliştirildi",
+    "github": "GitHub",
+    "language": "Dil",
+    "switchLanguage": "Dili {name} olarak değiştir"
+  },
+  "tester": {
+    "instructions": {
+      "toggle": "Kullanım yönergelerini aç veya kapat",
+      "title": "Nasıl kullanılır",
+      "selectDevices": "Mikrofonunuzu ve ses çıkış cihazınızı (kulaklık veya hoparlör) seçin.",
+      "placeDevice": "Çıkış cihazını, mikrofon sesi net şekilde algılayabilecek kadar yakına yerleştirin.",
+      "preview": "Canlı mikrofon seviyesini izlemek için {action} düğmesine tıklayın.",
+      "adjustThreshold": "Algılama eşiğini ayarlayın: kırmızı tutamacı, sessizlikte seviye çubuğu altında kalacak ama tıklama sesi çalındığında aşılacak şekilde sürükleyin.",
+      "start": "{action} düğmesine tıklayın. Araç, çıkış cihazından rastgele tıklama sesleri çalar ve mikrofonun her sesi ne zaman algıladığını kaydeder.",
+      "calculation": "Gecikme, oynatma ve algılama arasındaki zaman farkı olarak milisaniye cinsinden hesaplanır.",
+      "stop": "İşiniz bittiğinde {action} düğmesine tıklayın. Sonuçlar bölümünde tekil ölçümleri ve ortalama gecikmeyi inceleyin."
+    },
+    "support": {
+      "outputDeviceUnsupported": "Tarayıcınız çıkış cihazı seçimini desteklemiyor. Ses sistem varsayılan çıkışından çalınacak. En doğru sonuçlar için Chrome veya Edge kullanın."
+    },
+    "permission": {
+      "region": "Mikrofon izni gerekli",
+      "title": "Mikrofon erişimi gerekli",
+      "description": "Bu araç, oynatma gecikmesini ölçmek için mikrofonunuzdan ses okur. Cihazları listelemek ve testi başlatmak için erişime izin verin.",
+      "denied": "İzin reddedildi. Tarayıcınızın site ayarlarını kontrol edip tekrar deneyin.",
+      "allow": "Mikrofon Erişimine İzin Ver",
+      "allowAria": "Mikrofon erişimine izin ver"
+    },
+    "results": {
+      "title": "Ölçüm Sonuçları",
+      "reset": "Sıfırla",
+      "resetAria": "Ölçümleri sıfırla",
+      "simple": "Basit",
+      "advanced": "Gelişmiş",
+      "switchSimple": "Basit görünüme geç",
+      "switchAdvanced": "Gelişmiş görünüme geç",
+      "missed": "Kaçırıldı",
+      "measurementNumber": "ölçüm #{id}",
+      "average": "Ortalama",
+      "averageWithValue": "Ortalama: {value} ms",
+      "validCount": "({valid}/{total})",
+      "validMeasurements": "({valid} / {total} ölçüm)",
+      "listAria": "Gecikme ölçümü listesi",
+      "latencyValue": "{value} ms"
+    },
+    "devices": {
+      "inputLabel": "Ses Giriş Cihazı (Mikrofon)",
+      "inputPlaceholder": "Bir mikrofon seçin",
+      "inputAria": "Ses giriş cihazı seç",
+      "outputLabel": "Ses Çıkış Cihazı (Kulaklık veya Hoparlör)",
+      "outputPlaceholder": "Bir çıkış cihazı seçin",
+      "outputAria": "Ses çıkış cihazı seç",
+      "microphoneFallback": "Mikrofon",
+      "speakerFallback": "Hoparlör"
+    },
+    "threshold": {
+      "label": "Algılama Eşiği",
+      "level": "Seviye",
+      "threshold": "Eşik",
+      "meterAria": "Mikrofon ses seviyesi",
+      "sliderAria": "Algılama eşiği",
+      "description": "Mavi/yeşil çubuk mikrofon seviyesini, kırmızı tutamaç algılama eşiğini gösterir. Eşiği sessizlik ile tıklama sesi arasına ayarlayın."
+    },
+    "recording": {
+      "title": "Kayıt ve Oynatma",
+      "duration": "Kayıt Süresi",
+      "durationInputAria": "Saniye cinsinden kayıt süresi",
+      "durationSliderAria": "Kayıt süresi",
+      "progressAria": "Kayıt ilerlemesi",
+      "seconds": "saniye",
+      "lastRecording": "Son kayıt: {fileName}",
+      "status": {
+        "starting": "Kayıt başlatılıyor...",
+        "recording": "Kaydediliyor {elapsed} sn / {duration} sn",
+        "saving": "Kayıt kaydediliyor...",
+        "playing": "Kayıt oynatılıyor...",
+        "ready": "Kayıt hazır",
+        "empty": "Henüz kayıt yok"
+      }
+    },
+    "actions": {
+      "preview": "Önizle",
+      "start": "Başlat",
+      "stop": "Durdur",
+      "refreshDevices": "Cihazları Yenile",
+      "record": "Kaydet",
+      "stopRecording": "Kaydı Durdur",
+      "play": "Oynat",
+      "stopPlayback": "Oynatmayı Durdur",
+      "download": "İndir",
+      "startPreviewAria": "Mikrofon önizlemesini başlat",
+      "stopPreviewAria": "Mikrofon önizlemesini durdur",
+      "startMeasurementAria": "Gecikme ölçümünü başlat",
+      "stopMeasurementAria": "Gecikme ölçümünü durdur",
+      "refreshDevicesAria": "Ses cihazlarını yenile",
+      "startRecordingAria": "Ses kaydını başlat",
+      "stopRecordingAria": "Ses kaydını durdur",
+      "playRecordingAria": "Kaydedilen sesi oynat",
+      "stopPlaybackAria": "Kaydedilen ses oynatmasını durdur",
+      "downloadRecordingAria": "Kaydedilen sesi indir"
+    },
+    "status": {
+      "waiting": "Sonraki ölçüm bekleniyor...",
+      "playing": "Tıklama sesi çalınıyor...",
+      "detecting": "Ses algılanıyor..."
+    },
+    "errors": {
+      "listDevicesUnsupported": "Tarayıcınız ses cihazlarını listelemeyi desteklemiyor.",
+      "microphonePermissionDenied": "Mikrofon izni reddedildi. Lütfen tarayıcı ayarlarınızdan erişime izin verin.",
+      "noAudioInput": "Ses giriş cihazı bulunamadı.",
+      "listDevicesFailed": "Ses cihazları listelenirken bir hata oluştu.",
+      "previewFailed": "Mikrofon önizlemesi başlatılırken bir hata oluştu.",
+      "recordingUnsupported": "Tarayıcınız ses kaydını desteklemiyor.",
+      "recordingFailed": "Ses kaydedilirken bir hata oluştu.",
+      "selectedMicrophoneMissing": "Seçili mikrofon bulunamadı. Cihazları yenileyip tekrar deneyin.",
+      "recordingStartFailed": "Kayıt başlatılırken bir hata oluştu.",
+      "playbackFailed": "Kayıt oynatılırken bir hata oluştu.",
+      "selectedOutputUnavailable": "Seçili çıkış cihazı kullanılamıyor. Varsayılan çıkıştan oynatılıyor.",
+      "measurementStartFailed": "Ölçüm başlatılırken bir hata oluştu.",
+      "native": "{message}"
+    }
+  }
+}

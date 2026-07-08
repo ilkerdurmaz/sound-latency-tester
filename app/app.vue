@@ -1,21 +1,26 @@
 <script setup>
-useHead({
-    meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
-    link: [{ rel: 'icon', href: '/favicon.ico' }],
+const { locale, locales, t } = useI18n();
+const switchLocalePath = useSwitchLocalePath();
+const localeHead = useLocaleHead();
+
+const title = computed(() => t('app.title'));
+const description = computed(() => t('app.description'));
+
+useHead(() => ({
+    meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }, ...(localeHead.value.meta ?? [])],
+    link: [{ rel: 'icon', href: '/favicon.ico' }, ...(localeHead.value.link ?? [])],
     htmlAttrs: {
-        lang: 'en',
+        lang: localeHead.value.htmlAttrs?.lang,
+        dir: localeHead.value.htmlAttrs?.dir,
     },
-});
+}));
 
-const title = 'Audio Latency Tester';
-const description = 'Test the latency of your audio output devices';
-
-useSeoMeta({
-    title,
-    description,
-    ogTitle: title,
-    ogDescription: description,
-});
+useSeoMeta(() => ({
+    title: title.value,
+    description: description.value,
+    ogTitle: title.value,
+    ogDescription: description.value,
+}));
 </script>
 
 <template>
@@ -27,13 +32,25 @@ useSeoMeta({
                 </template>
 
                 <template #right>
+                    <div class="flex items-center gap-1" :aria-label="t('app.language')">
+                        <UButton
+                            v-for="availableLocale in locales"
+                            :key="availableLocale.code"
+                            :to="switchLocalePath(availableLocale.code)"
+                            :label="availableLocale.name"
+                            size="xs"
+                            color="neutral"
+                            :variant="availableLocale.code === locale ? 'solid' : 'ghost'"
+                            :aria-label="t('app.switchLanguage', { name: availableLocale.name })" />
+                    </div>
+
                     <UColorModeButton />
 
                     <UButton
                         to="https://github.com/ilkerdurmaz/sound-latency-tester"
                         target="_blank"
                         icon="i-simple-icons-github"
-                        aria-label="GitHub"
+                        :aria-label="t('app.github')"
                         color="neutral"
                         variant="ghost" />
                 </template>
@@ -47,7 +64,7 @@ useSeoMeta({
 
             <UFooter>
                 <template #left>
-                    <p class="text-sm text-muted">Built by İlker Durmaz</p>
+                    <p class="text-sm text-muted">{{ t('app.builtBy') }}</p>
                 </template>
             </UFooter>
         </div>

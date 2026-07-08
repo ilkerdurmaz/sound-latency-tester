@@ -10,6 +10,7 @@ The app plays short test sounds, detects the returned audio through the micropho
 - Detection threshold control
 - Live microphone level meter
 - Individual latency measurements and average result
+- Short microphone recording, playback, and download
 - Reset measurements and refresh device list
 
 ## How It Works
@@ -45,5 +46,6 @@ npm run typecheck
 ## Notes
 
 - The browser must be allowed to access the microphone.
+- Recording playback requires browser support for the MediaRecorder API.
 - For best results, use an environment where the microphone can clearly hear the test sound.
 - Audio output device selection may not be supported in every browser.

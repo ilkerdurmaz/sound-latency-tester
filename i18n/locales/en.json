@@ -1,0 +1,127 @@
+{
+  "app": {
+    "title": "Audio Latency Tester",
+    "description": "Test the latency of your audio output devices",
+    "builtBy": "Built by Ilker Durmaz",
+    "github": "GitHub",
+    "language": "Language",
+    "switchLanguage": "Switch language to {name}"
+  },
+  "tester": {
+    "instructions": {
+      "toggle": "Toggle how to use instructions",
+      "title": "How to use",
+      "selectDevices": "Select your microphone and audio output device (headphones or speakers).",
+      "placeDevice": "Place the output device close enough for the microphone to pick up the sound clearly.",
+      "preview": "Click {action} to monitor the live microphone level.",
+      "adjustThreshold": "Adjust the detection threshold: drag the red thumb so the level bar stays below it during silence, but crosses it when a click sound is played.",
+      "start": "Click {action}. The tool plays random click sounds through the output device and records when the microphone detects each one.",
+      "calculation": "Latency is calculated as the time difference between playback and detection, in milliseconds.",
+      "stop": "Click {action} when you are done. Review individual measurements and the average latency in the results section."
+    },
+    "support": {
+      "outputDeviceUnsupported": "Your browser does not support output device selection. Audio will play through the system default output. Use Chrome or Edge for the most accurate results."
+    },
+    "permission": {
+      "region": "Microphone permission required",
+      "title": "Microphone access required",
+      "description": "This tool reads audio from your microphone to measure playback latency. Allow access to list your devices and start testing.",
+      "denied": "Permission was denied. Check your browser's site settings and try again.",
+      "allow": "Allow Microphone Access",
+      "allowAria": "Allow microphone access"
+    },
+    "results": {
+      "title": "Measurement Results",
+      "reset": "Reset",
+      "resetAria": "Reset measurements",
+      "simple": "Simple",
+      "advanced": "Advanced",
+      "switchSimple": "Switch to simple view",
+      "switchAdvanced": "Switch to advanced view",
+      "missed": "Missed",
+      "measurementNumber": "measurement #{id}",
+      "average": "Average",
+      "averageWithValue": "Average: {value} ms",
+      "validCount": "({valid}/{total})",
+      "validMeasurements": "({valid} / {total} measurements)",
+      "listAria": "Latency measurement list",
+      "latencyValue": "{value} ms"
+    },
+    "devices": {
+      "inputLabel": "Audio Input Device (Microphone)",
+      "inputPlaceholder": "Select a microphone",
+      "inputAria": "Select audio input device",
+      "outputLabel": "Audio Output Device (Headphones or Speakers)",
+      "outputPlaceholder": "Select an output device",
+      "outputAria": "Select audio output device",
+      "microphoneFallback": "Microphone",
+      "speakerFallback": "Speaker"
+    },
+    "threshold": {
+      "label": "Detection Threshold",
+      "level": "Level",
+      "threshold": "Threshold",
+      "meterAria": "Microphone audio level",
+      "sliderAria": "Detection threshold",
+      "description": "The blue/green bar shows microphone level; the red thumb shows the detection threshold. Set the threshold between silence and the click sound."
+    },
+    "recording": {
+      "title": "Record & Playback",
+      "duration": "Recording Duration",
+      "durationInputAria": "Recording duration in seconds",
+      "durationSliderAria": "Recording duration",
+      "progressAria": "Recording progress",
+      "seconds": "seconds",
+      "lastRecording": "Last recording: {fileName}",
+      "status": {
+        "starting": "Starting recording...",
+        "recording": "Recording {elapsed}s / {duration}s",
+        "saving": "Saving recording...",
+        "playing": "Playing recording...",
+        "ready": "Recording ready",
+        "empty": "No recording yet"
+      }
+    },
+    "actions": {
+      "preview": "Preview",
+      "start": "Start",
+      "stop": "Stop",
+      "refreshDevices": "Refresh Devices",
+      "record": "Record",
+      "stopRecording": "Stop Recording",
+      "play": "Play",
+      "stopPlayback": "Stop Playback",
+      "download": "Download",
+      "startPreviewAria": "Start microphone preview",
+      "stopPreviewAria": "Stop microphone preview",
+      "startMeasurementAria": "Start latency measurement",
+      "stopMeasurementAria": "Stop latency measurement",
+      "refreshDevicesAria": "Refresh audio devices",
+      "startRecordingAria": "Start audio recording",
+      "stopRecordingAria": "Stop audio recording",
+      "playRecordingAria": "Play recorded audio",
+      "stopPlaybackAria": "Stop recorded audio playback",
+      "downloadRecordingAria": "Download recorded audio"
+    },
+    "status": {
+      "waiting": "Waiting for next measurement...",
+      "playing": "Playing click sound...",
+      "detecting": "Detecting sound..."
+    },
+    "errors": {
+      "listDevicesUnsupported": "Your browser does not support listing audio devices.",
+      "microphonePermissionDenied": "Microphone permission denied. Please allow access in your browser settings.",
+      "noAudioInput": "No audio input device found.",
+      "listDevicesFailed": "An error occurred while listing audio devices.",
+      "previewFailed": "An error occurred while starting microphone preview.",
+      "recordingUnsupported": "Your browser does not support audio recording.",
+      "recordingFailed": "An error occurred while recording audio.",
+      "selectedMicrophoneMissing": "Selected microphone not found. Refresh devices and try again.",
+      "recordingStartFailed": "An error occurred while starting the recording.",
+      "playbackFailed": "An error occurred while playing the recording.",
+      "selectedOutputUnavailable": "Selected output device is unavailable. Playing through the default output.",
+      "measurementStartFailed": "An error occurred while starting the measurement.",
+      "native": "{message}"
+    }
+  }
+}
